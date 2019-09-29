@@ -44,7 +44,7 @@ var createPhotoDescription = function (amount) {
   var comments = [];
   for (var i = 0; i < amount; i++) {
     comments.push({
-      url: 'photos/' + i + '.jpg,',
+      url: 'photos/' + (i+1) + '.jpg',
       description: ' ',
       likes: getRandomNumber(MIN_LIKES, MAX_LIKES),
       comments: createCommentsList(),
