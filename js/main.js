@@ -20,7 +20,7 @@ var getRandomNumber = function (min, max) {
 };
 
 // создаем случайный коментарий
-var createRandomComment = function () {
+var createRandomUser = function () {
   return {
     avatar: 'avatar-' + getRandomNumber(1, 6) + '.svg',
     message: COMMENTS[getRandomNumber(1, (COMMENTS.length - 1))],
@@ -34,7 +34,7 @@ var createCommentsList = function () {
   var randomCommentsAmount = getRandomNumber(1, 5);
   var commentsList = [];
   for (var i = 0; i < randomCommentsAmount; i++) {
-    commentsList.push(createRandomComment());
+    commentsList.push(createRandomUser());
   }
   return commentsList;
 };
@@ -45,7 +45,7 @@ var createPhotoDescription = function (amount) {
   for (var i = 0; i < amount; i++) {
     comments.push({
       url: 'photos/' + i + '.jpg,',
-      description: '',
+      description: ' ',
       likes: getRandomNumber(MIN_LIKES, MAX_LIKES),
       comments: createCommentsList(),
 
@@ -65,7 +65,7 @@ var fragment = document.createDocumentFragment();
 var createUsersPictures = function () {
   for (var i = 0; i < DESCRIPTION_ARRAY_LENGTH; i++) {
     var photoElement = userPictureTemplate.cloneNode(true);
-    var image = photoElement.querySelector('picture__image');
+    var image = photoElement.querySelector('.picture__img');
     image.src = comments[i].url;
     photoElement.querySelector('.picture__likes').textContent = comments[i].likes;
     photoElement.querySelector('.picture__comments').textContent = comments[i].comments;
@@ -75,4 +75,3 @@ var createUsersPictures = function () {
 };
 
 usersPicturesList.appendChild(createUsersPictures());
-
