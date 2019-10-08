@@ -9,69 +9,116 @@ var COMMENTS = [
   'Лица у людей на фотке перекошены, как будто их избивают. Как можно было поймать такой неудачный момент?!'
 ];
 var NAMES = ['Андрей', 'Кристина', 'Артем', 'Александр', 'Маша', 'Аня', 'Татьяна', 'Владислав'];
+var AVATARS = ['avatar-1.svg', 'avatar-2.svg', 'avatar-3.svg', 'avatar-4.svg', 'avatar-5.svg', 'avatar-6.svg'];
 var DESCRIPTION_ARRAY_LENGTH = 25;
 var MIN_LIKES = 15;
-var MAX_LIKES = 200;
+var MAX_LIKES = 200 - MIN_LIKES;
 
 // получть cлучайное число в указанном диапазоне
-var getRandomNumber = function (min, max) {
-  var rand = min + Math.random() * (max + 1 - min);
-  return Math.floor(rand);
+var getRandomNumber = function (max) {
+  return Math.floor(Math.random() * max);
 };
 
 // создаем случайный коментарий
-var createRandomUser = function () {
+var createRandomComment = function (avatarsArray, commentArray, namesArray) {
   return {
-    avatar: 'avatar-' + getRandomNumber(1, 6) + '.svg',
-    message: COMMENTS[getRandomNumber(1, (COMMENTS.length - 1))],
-    name: NAMES[getRandomNumber(1, (NAMES.length - 1))]
+    avatar: 'img/' + avatarsArray[getRandomNumber(AVATARS.length - 1)],
+    message: commentArray[getRandomNumber(COMMENTS.length - 1)],
+    name: namesArray[getRandomNumber(NAMES.length - 1)]
   };
-
 };
 
 // создаем массив из случайных комментариев
-var createCommentsList = function () {
-  var randomCommentsAmount = getRandomNumber(1, 5);
+var createCommentsList = function (randomCommentsAmount) {
   var commentsList = [];
   for (var i = 0; i < randomCommentsAmount; i++) {
-    commentsList.push(createRandomUser());
+    commentsList.push(createRandomComment(AVATARS, COMMENTS, NAMES));
   }
   return commentsList;
 };
 
+// var commentsList = createCommentsList();
 // функция для создания массива объектов из n-количеством описаний фотографий
 var createPhotoDescription = function (amount) {
-  var comments = [];
+  var photoDescription = [];
   for (var i = 0; i < amount; i++) {
-    comments.push({
-      url: 'photos/' + (i+1) + '.jpg',
-      description: ' ',
-      likes: getRandomNumber(MIN_LIKES, MAX_LIKES),
-      comments: createCommentsList(),
-
+    photoDescription.push({
+      url: 'photos/' + (i + 1) + '.jpg',
+      description: 'some description',
+      likes: getRandomNumber(MAX_LIKES) + MIN_LIKES,
+      comments: createCommentsList(getRandomNumber(3) + 1)
     });
   }
-  return comments;
+  return photoDescription;
 };
 // создаем масив из 25 описаний фотографии
-var comments = createPhotoDescription(DESCRIPTION_ARRAY_LENGTH);
+var photoDescription = createPhotoDescription(DESCRIPTION_ARRAY_LENGTH);
 
 // создание dom елемента
 
 var usersPicturesList = document.querySelector('.pictures');
 var userPictureTemplate = document.querySelector('#picture').content.querySelector('.picture');
-var fragment = document.createDocumentFragment();
 
-var createUsersPictures = function () {
-  for (var i = 0; i < DESCRIPTION_ARRAY_LENGTH; i++) {
+
+var createUsersPictures = function (amount, photo) {
+  var fragment = document.createDocumentFragment();
+  for (var i = 0; i < amount; i++) {
     var photoElement = userPictureTemplate.cloneNode(true);
     var image = photoElement.querySelector('.picture__img');
-    image.src = comments[i].url;
-    photoElement.querySelector('.picture__likes').textContent = comments[i].likes;
-    photoElement.querySelector('.picture__comments').textContent = comments[i].comments;
+    image.src = photo[i].url;
+    photoElement.querySelector('.picture__likes').textContent = photo[i].likes;
+    photoElement.querySelector('.picture__comments').textContent = photo[i].comments.length; // тут длина масива commentsList
     fragment.appendChild(photoElement);
   }
   return fragment;
 };
 
-usersPicturesList.appendChild(createUsersPictures());
+usersPicturesList.appendChild(createUsersPictures(DESCRIPTION_ARRAY_LENGTH, photoDescription));
+
+/* ----------------task 3---------------- */
+// просморт фото в полноэкранном режиме
+var bigPicture = document.querySelector('.big-picture');
+var bigPictureImage = bigPicture.querySelector('.big-picture__img');
+var likesCount = bigPicture.querySelector('.likes-count');
+var commentsCount = bigPicture.querySelector('.comments-count');
+var socialCaption = bigPicture.querySelector('.social__caption');
+var socialComments = bigPicture.querySelector('.social__comments');
+// var socialComment = bigPicture.querySelector('.social__comment');
+var socialPicture = bigPicture.querySelector('.social__picture');
+var socialText = bigPicture.querySelector('.social__text');
+var picture = photoDescription[0];
+
+bigPicture.classList.remove('hidden');
+bigPicture.querySelector('.social__comment-count').classList.add('.hidden');
+bigPicture.querySelector('.comments-loader').classList.add('.hidden');
+
+var createBigPicture = function (photo) {
+  bigPictureImage.src = photo.url;
+  likesCount.textContent = photo.likes;
+  commentsCount.textContent = photo.comments.length;
+  socialCaption.textContent = photo.description;
+};
+
+createBigPicture(picture);
+
+var createCommentsElement = function (photo) {
+  var fragment = document.createDocumentFragment();
+  for (var i = 0; i < photo.comments.length; i++) {
+    var commentElement = document.querySelector('.social__comment').cloneNode(true);
+    socialPicture.src = photo.comments[i].avatar;
+    socialPicture.alt = photo.comments[i].name;
+    socialText.textContent = photo.comments[i].message;
+    fragment.appendChild(commentElement);
+  }
+  return fragment;
+};
+
+function createComments(photo) {
+  var fragment = createCommentsElement(photo);
+  socialComments.innerHTML = '';
+  socialComments.appendChild(fragment);
+}
+
+createComments(picture);
+
+
